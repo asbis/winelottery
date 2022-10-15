@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1007460044781",
+    "project_id": "winelottery1",
+    "storage_bucket": "winelottery1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007460044781:android:741cb4b3572cec28ff61e4",
+        "android_client_info": {
+          "package_name": "com.example.winwine"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007460044781-cm8f0vuln3t1vg17hm5qeurutnnr49bk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSVfV_v6wH_KOHD62KAZKeNV_E5iujevE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007460044781-cm8f0vuln3t1vg17hm5qeurutnnr49bk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
