@@ -45,7 +45,7 @@ class _LotteryPageState extends State<LotteryPage> {
   @override
   void initState() {
     super.initState();
-    players = [Player("", 0, 2, itemColors.first)];
+    players = [Player("", 2, itemColors.first)];
     _controllerTopCenter =
         ConfettiController(duration: const Duration(seconds: 10));
   }
@@ -62,7 +62,7 @@ class _LotteryPageState extends State<LotteryPage> {
       duration: const Duration(seconds: 10),
       items: [
         for (var i = 0; i < players.length; i++)
-          for (var k = 0; k < players[i].numberDevidedByFive; k++)
+          for (var k = 0; k < players[i].number; k++)
             FortuneItem(
                 style: FortuneItemStyle(
                     color: players[i].color, borderColor: players[i].color),
@@ -81,7 +81,7 @@ class _LotteryPageState extends State<LotteryPage> {
       duration: const Duration(seconds: 10),
       items: [
         for (var i = 0; i < players.length; i++)
-          for (var k = 0; k < players[i].numberDevidedByFive; k++)
+          for (var k = 0; k < players[i].number; k++)
             FortuneItem(
                 style: FortuneItemStyle(
                     color: Colors.black, borderColor: players[i].color),
@@ -103,7 +103,7 @@ class _LotteryPageState extends State<LotteryPage> {
   }
 
   void _incrementPlayer() {
-    players.add(Player("", 0, 0, itemColors[players.length]));
+    players.add(Player("", 0, itemColors[players.length]));
     _listKey.currentState?.insertItem(players.length - 1);
     Timer(const Duration(milliseconds: 100), () => _scrollDown());
   }
@@ -131,7 +131,7 @@ class _LotteryPageState extends State<LotteryPage> {
   int sumAllPlayersTicket() {
     int sum = 0;
     for (var i = 0; i < players.length; i++) {
-      sum += players[i].numberDevidedByFive;
+      sum += players[i].number;
     }
     return sum;
   }
@@ -311,7 +311,7 @@ class _LotteryPageState extends State<LotteryPage> {
   void _decrementerCountner(int index) {
     setState(() {
       players[index].number--;
-      players[index].numberDevidedByFive = players[index].number ~/ 5;
+      players[index].number = players[index].number ~/ 5;
     });
   }
 
@@ -319,7 +319,7 @@ class _LotteryPageState extends State<LotteryPage> {
     setState(() {
       players[index].number = players[index].number + 5;
       if (players[0].number > 10) {
-        players[index].numberDevidedByFive = (players[index].number / 5).ceil();
+        players[index].number = (players[index].number / 5).ceil();
       }
     });
   }

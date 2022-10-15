@@ -5,10 +5,10 @@ import 'dart:async';
 class Player {
   String name;
   int number;
-  int numberDevidedByFive;
+  //int numberDevidedByFive;
   Color color;
 
-  Player(this.name, this.number, this.numberDevidedByFive, this.color);
+  Player(this.name, this.number, this.color);
 }
 
 class RoundedInputBoxWithAddMinus extends StatefulWidget {
