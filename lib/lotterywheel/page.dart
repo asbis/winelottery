@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
-import 'package:collection/collection.dart';
-import 'package:winwine/main_menu/page.dart';
 import 'package:winwine/widgets.dart';
 
 class LotteryPage extends StatefulWidget {
@@ -32,6 +30,7 @@ class _LotteryPageState extends State<LotteryPage> {
     Colors.blueGrey,
     Colors.redAccent,
     Colors.pink,
+    Colors.teal,
     Colors.amber.shade200,
     Colors.blue.shade200,
     Colors.red.shade200,
@@ -45,7 +44,7 @@ class _LotteryPageState extends State<LotteryPage> {
   @override
   void initState() {
     super.initState();
-    players = [Player("", 2, itemColors.first)];
+    players = [Player("", 2, _randomColor())];
     _controllerTopCenter =
         ConfettiController(duration: const Duration(seconds: 10));
   }
@@ -102,32 +101,6 @@ class _LotteryPageState extends State<LotteryPage> {
     );
   }
 
-  void _incrementPlayer() {
-    players.add(Player("", 0, itemColors[players.length]));
-    _listKey.currentState?.insertItem(players.length - 1);
-    Timer(const Duration(milliseconds: 100), () => _scrollDown());
-  }
-
-  Widget listOfPlayers() {
-    return AnimatedList(
-      controller: _controller,
-      key: _listKey,
-      padding: const EdgeInsets.only(top: 10),
-      initialItemCount: players.length,
-      itemBuilder: (context, index, animation) {
-        return SlideTransition(
-            position: CurvedAnimation(
-              curve: Curves.easeOut,
-              parent: animation,
-            ).drive((Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: const Offset(0, 0),
-            ))),
-            child: roundedInputBoxWithAddMinus(index));
-      },
-    );
-  }
-
   int sumAllPlayersTicket() {
     int sum = 0;
     for (var i = 0; i < players.length; i++) {
@@ -141,7 +114,7 @@ class _LotteryPageState extends State<LotteryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vinlotteri',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white)),
@@ -214,7 +187,106 @@ class _LotteryPageState extends State<LotteryPage> {
     );
   }
 
-  Container roundedInputBoxWithAddMinus(int index) {
+  Container roundedInputBoxWithAddMinus(Player player, int index) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: player.color,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: player.color.withOpacity(0.2),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 5), // changes position of shadow
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(0, 10, 10, 10), //all(10),
+      width: 520,
+      height: 75,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: TextButton(
+              onPressed: () => _decrementPlayer(index),
+              child: const Icon(
+                Icons.remove_circle_outline_rounded,
+                color: Colors.black45,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 8,
+          ),
+          Expanded(
+            flex: 8,
+            child: Container(
+              height: 50,
+              color: Colors.transparent,
+              child: TextField(
+                onChanged: (value) => {
+                  setState(() {
+                    players[index].name = value;
+                  })
+                },
+                style: const TextStyle(
+                  color: Colors.white,
+                  decorationColor: Colors.white,
+                  fontSize: 20,
+                ),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        width: 5,
+                        color: Colors.white,
+                        style: BorderStyle.solid),
+                  ),
+                  labelText: 'Name',
+                ),
+              ),
+            ),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _decrementerCountner(index),
+                child: const Icon(Icons.remove, color: Colors.white),
+              )),
+          Container(
+            padding: const EdgeInsets.all(5),
+            width: 50,
+            height: 50,
+            color: Colors.transparent,
+            child: Text(
+              players[index].number.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 35,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _incrementCounter(index),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Container roundedInputBoxWithAddMinus2(int index) {
     return Container(
       margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -234,6 +306,16 @@ class _LotteryPageState extends State<LotteryPage> {
       height: 75,
       child: Row(
         children: [
+          Expanded(
+            flex: 1,
+            child: TextButton(
+              onPressed: () => _decrementPlayer(index),
+              child: const Icon(
+                Icons.remove_circle_outline_rounded,
+                color: Colors.black45,
+              ),
+            ),
+          ),
           Expanded(
             child: Container(
               height: 50,
@@ -310,17 +392,76 @@ class _LotteryPageState extends State<LotteryPage> {
 
   void _decrementerCountner(int index) {
     setState(() {
+      if (sumAllPlayersTicket() <= 2) {
+        return;
+      }
       players[index].number--;
-      players[index].number = players[index].number ~/ 5;
     });
   }
 
   void _incrementCounter(int index) {
     setState(() {
-      players[index].number = players[index].number + 5;
-      if (players[0].number > 10) {
-        players[index].number = (players[index].number / 5).ceil();
+      if (sumAllPlayersTicket() < 2) {
+        players[index].number = 2;
+      } else {
+        players[index].number++;
       }
     });
+  }
+
+  void _incrementPlayer() {
+    players.add(Player("", 0, _randomColor()));
+    _listKey.currentState?.insertItem(players.length - 1);
+    Timer(const Duration(milliseconds: 100), () => _scrollDown());
+  }
+
+  Color _randomColor() {
+    return Colors.primaries[Random().nextInt(Colors.primaries.length)]
+        [Random().nextInt(9) * 100]!;
+  }
+
+  Widget listOfPlayers() {
+    return AnimatedList(
+      controller: _controller,
+      key: _listKey,
+      padding: const EdgeInsets.only(top: 10),
+      initialItemCount: players.length,
+      itemBuilder: (context, index, animation) {
+        return SlideTransition(
+            position: CurvedAnimation(
+              curve: Curves.easeOut,
+              parent: animation,
+            ).drive((Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: const Offset(0, 0),
+            ))),
+            child: roundedInputBoxWithAddMinus(players[index], index));
+      },
+    );
+  }
+
+  void _decrementPlayer(int index) {
+    if ((sumAllPlayersTicket() - players[index].number) < 2) {
+      return;
+    }
+    Player player = players[index];
+    if (index == players.length - 1) {
+      Timer(const Duration(milliseconds: 100), () => players.removeAt(index));
+    } else {
+      players.removeAt(index);
+    }
+    Timer(
+        const Duration(milliseconds: 20),
+        () => (_listKey.currentState?.removeItem(
+            index,
+            (context, animation) => SlideTransition(
+                position: CurvedAnimation(
+                  curve: Curves.easeIn,
+                  parent: animation,
+                ).drive((Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: const Offset(0, 0),
+                ))),
+                child: roundedInputBoxWithAddMinus(player, index)))));
   }
 }
