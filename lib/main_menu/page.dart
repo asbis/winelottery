@@ -19,7 +19,7 @@ class _MainMenuState extends State<MainMenu> {
   @override
   void initState() {
     super.initState();
-    players = [Player("", 0, itemColors.first)];
+    players = [Player(0, "", 0, itemColors.first)];
   }
 
   void _scrollDown() {
@@ -52,7 +52,7 @@ class _MainMenuState extends State<MainMenu> {
   ];
 
   void _incrementPlayer() {
-    players.add(Player("", 0, itemColors[players.length]));
+    players.add(Player(players.last.id + 1, "", 0, itemColors[players.length]));
     _listKey.currentState?.insertItem(players.length - 1);
     Timer(const Duration(milliseconds: 100), () => _scrollDown());
   }

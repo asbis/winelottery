@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class Player {
+  int id;
   String name;
   int number;
   //int numberDevidedByFive;
   Color color;
 
-  Player(this.name, this.number, this.color);
+  Player(this.id, this.name, this.number, this.color);
 }
 
 class RoundedInputBoxWithAddMinus extends StatefulWidget {

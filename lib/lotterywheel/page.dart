@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:confetti/confetti.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
 import 'package:winwine/widgets.dart';
@@ -20,11 +21,16 @@ class _LotteryPageState extends State<LotteryPage> {
   final ScrollController _controller = ScrollController();
   late ConfettiController _controllerTopCenter;
   List<Player> players = [];
+  List<Player> randomPlayers = [];
+
+  int WinnerIndex = 0;
+
+  bool randomPlaced = false;
 
   @override
   void initState() {
     super.initState();
-    players = [Player("", 2, _randomColor())];
+    players = [Player(0, "", 2, _randomColor())];
     _controllerTopCenter =
         ConfettiController(duration: const Duration(seconds: 10));
   }
@@ -39,18 +45,31 @@ class _LotteryPageState extends State<LotteryPage> {
     return FortuneWheel(
       selected: selected.stream,
       duration: const Duration(seconds: 10),
-      items: [
-        for (var i = 0; i < players.length; i++)
-          for (var k = 0; k < players[i].number; k++)
-            FortuneItem(
-                style: FortuneItemStyle(
-                    color: players[i].color, borderColor: players[i].color),
-                child: Text(players[i].name,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white))),
-      ],
+      items: randomPlaced
+          ? randomPlayers
+              .map((e) => FortuneItem(
+                  style: FortuneItemStyle(
+                    color: e.color,
+                  ),
+                  child: Text(e.name,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black))))
+              .toList()
+          : [
+              for (var i = 0; i < players.length; i++)
+                for (var k = 0; k < players[i].number; k++)
+                  FortuneItem(
+                      style: FortuneItemStyle(
+                          color: players[i].color,
+                          borderColor: players[i].color),
+                      child: Text(players[i].name,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white))),
+            ],
     );
   }
 
@@ -58,18 +77,31 @@ class _LotteryPageState extends State<LotteryPage> {
     return FortuneBar(
       selected: selected2.stream,
       duration: const Duration(seconds: 10),
-      items: [
-        for (var i = 0; i < players.length; i++)
-          for (var k = 0; k < players[i].number; k++)
-            FortuneItem(
-                style: FortuneItemStyle(
-                    color: Colors.black, borderColor: players[i].color),
-                child: Text(players[i].name,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black))),
-      ],
+      items: randomPlaced
+          ? randomPlayers
+              .map((e) => FortuneItem(
+                  style: FortuneItemStyle(
+                    color: e.color,
+                  ),
+                  child: Text(e.name,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black))))
+              .toList()
+          : [
+              for (var i = 0; i < players.length; i++)
+                for (var k = 0; k < players[i].number; k++)
+                  FortuneItem(
+                      style: FortuneItemStyle(
+                          color: players[i].color,
+                          borderColor: players[i].color),
+                      child: Text(players[i].name,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white))),
+            ],
     );
   }
 
@@ -79,6 +111,17 @@ class _LotteryPageState extends State<LotteryPage> {
       curve: Curves.easeOut,
       duration: const Duration(milliseconds: 500),
     );
+  }
+
+  void generateArandomOrderOfPlayers() {
+    randomPlayers.clear();
+    for (var i = 0; i < players.length; i++) {
+      for (var k = 0; k < players[i].number; k++) {
+        randomPlayers.add(players[i]);
+      }
+    }
+    randomPlayers.shuffle();
+    setState(() {});
   }
 
   int sumAllPlayersTicket() {
@@ -91,6 +134,7 @@ class _LotteryPageState extends State<LotteryPage> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vinlotteri',
@@ -115,38 +159,78 @@ class _LotteryPageState extends State<LotteryPage> {
             confetti(),
             lykkebar(),
             Expanded(
-              child: Row(
-                children: [
-                  Expanded(flex: 3, child: lykkehjul()),
-                  Expanded(flex: 2, child: listOfPlayers()),
-                ],
-              ),
+              child: width < 1000
+                  ? Column(
+                      children: [
+                        Expanded(flex: 3, child: lykkehjul()),
+                        Expanded(flex: 2, child: listOfPlayers()),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(flex: 3, child: lykkehjul()),
+                        Expanded(flex: 2, child: listOfPlayers()),
+                      ],
+                    ),
             )
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          FloatingActionButton(
-            onPressed: () => spinWheel(),
-            tooltip: 'Increment',
-            child: const Text(
-              "SPIN",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ), //Icon(Icons.add),
+          SizedBox(
+            height: 70,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: CupertinoSwitch(
+                    activeColor: Colors.blueGrey,
+                    value: randomPlaced,
+                    onChanged: (value) {
+                      setState(() {
+                        randomPlaced = value;
+                        generateArandomOrderOfPlayers();
+                      });
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text("Shuffle",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.black54)),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(
-            width: 10,
-          ),
-          FloatingActionButton(
-            onPressed: _incrementPlayer,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(
-            width: 10,
+          Row(
+            children: [
+              FloatingActionButton(
+                onPressed: () => spinWheel(),
+                tooltip: 'Spinn hjulet',
+                child: const Text(
+                  "SPINN",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ), //Icon(Icons.add),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              FloatingActionButton(
+                onPressed: _incrementPlayer,
+                tooltip: 'Legg til spiller',
+                child: const Icon(Icons.add),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+            ],
           ),
         ],
       ),
@@ -184,7 +268,7 @@ class _LotteryPageState extends State<LotteryPage> {
       ),
       padding: const EdgeInsets.fromLTRB(0, 10, 10, 10), //all(10),
       width: 520,
-      height: 75,
+      height: 90,
       child: Row(
         children: [
           Expanded(
@@ -224,7 +308,7 @@ class _LotteryPageState extends State<LotteryPage> {
                         color: Colors.white,
                         style: BorderStyle.solid),
                   ),
-                  labelText: 'Name',
+                  labelText: 'Navn',
                 ),
               ),
             ),
@@ -234,21 +318,35 @@ class _LotteryPageState extends State<LotteryPage> {
               height: 50,
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => _decrementerCountner(index),
+                onTap: () => _decrementerCountner(index, -1),
                 child: const Icon(Icons.remove, color: Colors.white),
               )),
           Container(
             padding: const EdgeInsets.all(5),
             width: 50,
-            height: 50,
+            height: 90,
             color: Colors.transparent,
-            child: Text(
-              players[index].number.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 35,
-              ),
-              textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  players[index].number.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 35,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Text(
+                  "Lodd",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
           Container(
@@ -275,32 +373,89 @@ class _LotteryPageState extends State<LotteryPage> {
     });
     Timer(const Duration(seconds: 9), () {
       _controllerTopCenter.play();
-      //findWinner(randomNr);
+      findWinner(randomNr);
     }); //=> ;
+  }
+
+  void showPopUpOfWinnder(int RandomNr) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Vinneren er',
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+              randomPlaced
+                  ? randomPlayers[RandomNr].name
+                  : players[RandomNr].name,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Lukk'),
+              onPressed: () {
+                setState(() {
+                  randomPlaced
+                      ? _decrementerCountner(-1, randomPlayers[RandomNr].id)
+                      : _decrementerCountner(WinnerIndex, -1);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void findWinner(int randomNr) {
     int counter = 0;
-    for (var i = 0; i < players.length; i++) {
-      for (var k = 0; k < players[i].number; k++) {
+    if (randomPlaced) {
+      for (int i = 0; i < randomPlayers.length; i++) {
         if (counter == randomNr) {
-          setState(() {
-            _decrementerCountner(i);
-          });
-          return;
+          showPopUpOfWinnder(i);
         }
         counter++;
+      }
+    } else {
+      for (var i = 0; i < players.length; i++) {
+        for (var k = 0; k < players[i].number; k++) {
+          if (counter == randomNr) {
+            showPopUpOfWinnder(i);
+            setState(() {
+              WinnerIndex = i;
+            });
+            return;
+          }
+          counter++;
+        }
       }
     }
   }
 
-  void _decrementerCountner(int index) {
-    setState(() {
-      if (sumAllPlayersTicket() <= 2) {
-        return;
-      }
-      players[index].number--;
-    });
+  void _decrementerCountner(int index, int id) {
+    if (sumAllPlayersTicket() <= 2) {
+      return;
+    }
+    if (id == -1) {
+      setState(() {
+        players[index].number--;
+        generateArandomOrderOfPlayers();
+      });
+    } else {
+      setState(() {
+        int index2 = players.indexWhere((element) => element.id == id);
+        players[index2].number--;
+        generateArandomOrderOfPlayers();
+      });
+    }
   }
 
   void _incrementCounter(int index) {
@@ -310,13 +465,15 @@ class _LotteryPageState extends State<LotteryPage> {
       } else {
         players[index].number++;
       }
+      generateArandomOrderOfPlayers();
     });
   }
 
   void _incrementPlayer() {
-    players.add(Player("", 0, _randomColor()));
+    players.add(Player(players.last.id + 1, "", 0, _randomColor()));
     _listKey.currentState?.insertItem(players.length - 1);
     Timer(const Duration(milliseconds: 100), () => _scrollDown());
+    generateArandomOrderOfPlayers();
   }
 
   Color _randomColor() {
@@ -328,7 +485,7 @@ class _LotteryPageState extends State<LotteryPage> {
     return AnimatedList(
       controller: _controller,
       key: _listKey,
-      padding: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(top: 10, bottom: 100),
       initialItemCount: players.length,
       itemBuilder: (context, index, animation) {
         return SlideTransition(
@@ -351,8 +508,10 @@ class _LotteryPageState extends State<LotteryPage> {
     Player player = players[index];
     if (index == players.length - 1) {
       Timer(const Duration(milliseconds: 100), () => players.removeAt(index));
+      generateArandomOrderOfPlayers();
     } else {
       players.removeAt(index);
+      generateArandomOrderOfPlayers();
     }
     Timer(
         const Duration(milliseconds: 20),
