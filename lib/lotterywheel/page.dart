@@ -21,26 +21,6 @@ class _LotteryPageState extends State<LotteryPage> {
   late ConfettiController _controllerTopCenter;
   List<Player> players = [];
 
-  List<Color> itemColors = [
-    Colors.amber,
-    Colors.blue,
-    Colors.red,
-    Colors.yellow,
-    Colors.brown,
-    Colors.blueGrey,
-    Colors.redAccent,
-    Colors.pink,
-    Colors.teal,
-    Colors.amber.shade200,
-    Colors.blue.shade200,
-    Colors.red.shade200,
-    Colors.yellow.shade200,
-    Colors.brown.shade200,
-    Colors.blueGrey.shade200,
-    Colors.redAccent.shade200,
-    Colors.pink.shade200
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -217,7 +197,7 @@ class _LotteryPageState extends State<LotteryPage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 8,
           ),
           Expanded(
@@ -226,101 +206,7 @@ class _LotteryPageState extends State<LotteryPage> {
               height: 50,
               color: Colors.transparent,
               child: TextField(
-                onChanged: (value) => {
-                  setState(() {
-                    players[index].name = value;
-                  })
-                },
-                style: const TextStyle(
-                  color: Colors.white,
-                  decorationColor: Colors.white,
-                  fontSize: 20,
-                ),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        width: 5,
-                        color: Colors.white,
-                        style: BorderStyle.solid),
-                  ),
-                  labelText: 'Name',
-                ),
-              ),
-            ),
-          ),
-          Container(
-              width: 50,
-              height: 50,
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _decrementerCountner(index),
-                child: const Icon(Icons.remove, color: Colors.white),
-              )),
-          Container(
-            padding: const EdgeInsets.all(5),
-            width: 50,
-            height: 50,
-            color: Colors.transparent,
-            child: Text(
-              players[index].number.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 35,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Container(
-              width: 50,
-              height: 50,
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _incrementCounter(index),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Container roundedInputBoxWithAddMinus2(int index) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: players[index].color,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: players[index].color.withOpacity(0.2),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 5), // changes position of shadow
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(10),
-      width: 520,
-      height: 75,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: TextButton(
-              onPressed: () => _decrementPlayer(index),
-              child: const Icon(
-                Icons.remove_circle_outline_rounded,
-                color: Colors.black45,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 50,
-              color: Colors.transparent,
-              child: TextField(
+                controller: TextController(text: player.name),
                 onChanged: (value) => {
                   setState(() {
                     players[index].name = value;
@@ -382,12 +268,30 @@ class _LotteryPageState extends State<LotteryPage> {
   }
 
   void spinWheel() {
+    var randomNr = Fortune.randomInt(0, sumAllPlayersTicket());
     setState(() {
-      var randomNr = Fortune.randomInt(0, sumAllPlayersTicket());
       selected.add(randomNr);
       selected2.add(randomNr);
     });
-    Timer(const Duration(seconds: 9), () => _controllerTopCenter.play());
+    Timer(const Duration(seconds: 9), () {
+      _controllerTopCenter.play();
+      //findWinner(randomNr);
+    }); //=> ;
+  }
+
+  void findWinner(int randomNr) {
+    int counter = 0;
+    for (var i = 0; i < players.length; i++) {
+      for (var k = 0; k < players[i].number; k++) {
+        if (counter == randomNr) {
+          setState(() {
+            _decrementerCountner(i);
+          });
+          return;
+        }
+        counter++;
+      }
+    }
   }
 
   void _decrementerCountner(int index) {
@@ -463,5 +367,18 @@ class _LotteryPageState extends State<LotteryPage> {
                   end: const Offset(0, 0),
                 ))),
                 child: roundedInputBoxWithAddMinus(player, index)))));
+  }
+}
+
+class TextController extends TextEditingController {
+  TextController({required String text}) {
+    this.text = text;
+  }
+
+  set text(String newText) {
+    value = value.copyWith(
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
+        composing: TextRange.empty);
   }
 }
