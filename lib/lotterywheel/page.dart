@@ -5,6 +5,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
+import 'package:winwine/lotterywheel/model.dart';
 import 'package:winwine/widgets.dart';
 
 class LotteryPage extends StatefulWidget {
@@ -377,7 +378,7 @@ class _LotteryPageState extends State<LotteryPage> {
     }); //=> ;
   }
 
-  void showPopUpOfWinnder(int RandomNr) {
+  void showPopUpOfWinner(int RandomNr) {
     showDialog(
       context: context,
       builder: (context) {
@@ -420,7 +421,7 @@ class _LotteryPageState extends State<LotteryPage> {
     if (randomPlaced) {
       for (int i = 0; i < randomPlayers.length; i++) {
         if (counter == randomNr) {
-          showPopUpOfWinnder(i);
+          showPopUpOfWinner(i);
         }
         counter++;
       }
@@ -428,7 +429,7 @@ class _LotteryPageState extends State<LotteryPage> {
       for (var i = 0; i < players.length; i++) {
         for (var k = 0; k < players[i].number; k++) {
           if (counter == randomNr) {
-            showPopUpOfWinnder(i);
+            showPopUpOfWinner(i);
             setState(() {
               WinnerIndex = i;
             });
@@ -526,18 +527,5 @@ class _LotteryPageState extends State<LotteryPage> {
                   end: const Offset(0, 0),
                 ))),
                 child: roundedInputBoxWithAddMinus(player, index)))));
-  }
-}
-
-class TextController extends TextEditingController {
-  TextController({required String text}) {
-    this.text = text;
-  }
-
-  set text(String newText) {
-    value = value.copyWith(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length),
-        composing: TextRange.empty);
   }
 }

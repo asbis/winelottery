@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:winwine/lotterywheel/page.dart';
@@ -19,7 +20,7 @@ class _MainMenuState extends State<MainMenu> {
   @override
   void initState() {
     super.initState();
-    players = [Player(0, "", 0, itemColors.first)];
+    players = [Player(0, "", 0, _randomColor())];
   }
 
   void _scrollDown() {
@@ -32,49 +33,22 @@ class _MainMenuState extends State<MainMenu> {
 
   List<Player> players = [];
 
-  List<Color> itemColors = [
-    Colors.amber,
-    Colors.blue,
-    Colors.red,
-    Colors.yellow,
-    Colors.brown,
-    Colors.blueGrey,
-    Colors.redAccent,
-    Colors.pink,
-    Colors.amber,
-    Colors.blue,
-    Colors.red,
-    Colors.yellow,
-    Colors.brown,
-    Colors.blueGrey,
-    Colors.redAccent,
-    Colors.pink
-  ];
-
   void _incrementPlayer() {
-    players.add(Player(players.last.id + 1, "", 0, itemColors[players.length]));
+    players.add(Player(players.last.id + 1, "", 0, _randomColor()));
     _listKey.currentState?.insertItem(players.length - 1);
     Timer(const Duration(milliseconds: 100), () => _scrollDown());
   }
 
-/*
-  void _decrementerCountner(int index) {
-    setState(() {
-      players[index].number--;
-    });
-  }
-
-  void _incrementCounter(int index) {
-    setState(() {
-      players[index].number++;
-    });
-  }
-*/
   void pushedStart() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LotteryPage()),
     );
+  }
+
+  Color _randomColor() {
+    return Colors.primaries[Random().nextInt(Colors.primaries.length)]
+        [Random().nextInt(9) * 100]!;
   }
 
   @override

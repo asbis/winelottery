@@ -9,9 +9,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Vinlotteri🍾🍷',
-      home: LotteryPage(),
-    );
+    return MaterialApp(
+        title: 'Vinlotteri🍾🍷',
+        home: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth > 1000) {
+              return const LotteryPage();
+            } else {
+              return const MainMenu();
+            }
+          },
+        ));
   }
 }

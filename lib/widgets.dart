@@ -44,9 +44,12 @@ class _RoundedInputBoxWithAddMinusState
 
   @override
   Widget build(BuildContext context) {
+    bool isWidthUnder1000 = widget.screenWidth < 1000;
     return Container(
-      margin: EdgeInsets.fromLTRB((widget.screenWidth / 4), 5,
-          (widget.screenWidth / 4), 5), //EdgeInsets.all(5),
+      margin: isWidthUnder1000
+          ? const EdgeInsets.fromLTRB(10, 5, 10, 5)
+          : EdgeInsets.fromLTRB((widget.screenWidth / 4), 5,
+              (widget.screenWidth / 4), 5), //EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: widget.player.color,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -71,7 +74,7 @@ class _RoundedInputBoxWithAddMinusState
               child: const TextField(
                 style: TextStyle(
                   color: Colors.white,
-                  decorationColor: Colors.white,
+                  decorationColor: Color.fromARGB(255, 63, 59, 59),
                   fontSize: 20,
                 ),
                 decoration: InputDecoration(
